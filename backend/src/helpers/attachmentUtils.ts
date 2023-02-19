@@ -20,12 +20,12 @@ export class AttachmentUtils{
 
     getUploadUrl(todoId: string): string {
 
-        const url = this.s3.getSignedUrl('getObject', {
+        const url = this.s3.getSignedUrl('putObject', {
             Bucket: this.bucketName,
             Key: todoId,
             Expires: urlExpiration
           });
     
-        return url;
+        return url as string 
     }
 }

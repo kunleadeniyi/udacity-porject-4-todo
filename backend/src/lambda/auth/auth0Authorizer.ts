@@ -1,11 +1,11 @@
-import { CustomAuthorizerEvent, CustomAuthorizerResult } from 'aws-lambda'
+import { CustomAuthorizerEvent, CustomAuthorizerResult } from 'aws-lambda';
 import 'source-map-support/register'
 
-import { verify, decode } from 'jsonwebtoken'
-import { createLogger } from '../../utils/logger'
-import Axios from 'axios'
-import { Jwt } from '../../auth/Jwt'
-import { JwtPayload } from '../../auth/JwtPayload'
+import { verify, decode } from 'jsonwebtoken';
+import { createLogger } from '../../utils/logger';
+import Axios from 'axios';
+import { Jwt } from '../../auth/Jwt';
+import { JwtPayload } from '../../auth/JwtPayload';
 
 const logger = createLogger('auth')
 
@@ -63,11 +63,11 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   // You can read more about how to do this here: https://auth0.com/blog/navigating-rs256-and-jwks/
 
   const response = await Axios.get(jwksUrl);
-  const key = response.data.keys
-  const signInKeys = key.find(key => key.kid === jwt.header.kid)
+  const keys = response.data.keys
+  const signInKeys = keys.find(key => key.kid === jwt.header.kid)
   logger.info(`Sign in keys ${signInKeys}`)
 
-  if (signInKeys) {
+  if (!signInKeys) {
     throw new Error('Sign in key not found')
   }
 
@@ -76,7 +76,7 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const cert = `-----BEGIN CERTIFICATE-----\n${pem}\n-----END CERTIFICATE-----`
 
   const VerifiedToken = verify(token, cert, {algorithms: ['RS256']}) as JwtPayload
-  logger.info(`Verified token ${token}`)
+  logger.info(`Verified token ${VerifiedToken}`)
   return VerifiedToken
   // return undefined
 }

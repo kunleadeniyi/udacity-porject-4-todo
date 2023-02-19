@@ -19,6 +19,7 @@ export const handler = middy(
       statusCode: 201, // 201 for post
       body: JSON.stringify({ item: newTask})
     }
+
     // return undefined
   })
 

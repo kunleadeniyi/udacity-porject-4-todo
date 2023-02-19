@@ -5,8 +5,11 @@ import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
+import { TodoUpdate } from '../models/TodoUpdate';
 // import * as createError from 'http-errors'
 // import { TodoUpdate } from '../models/TodoUpdate';
+
+// import { parseUserId } from "../auth/utils";
 
 // TODO: Implement businessLogic
 const logger = createLogger('Todos')
@@ -23,8 +26,11 @@ export async function getTodosForUser(userId: string) {
 export async function createTodo(
     newTodo: CreateTodoRequest,
     userId: string
+    // jwtToken: string
 ): Promise<TodoItem> {
    logger.info("Called createTodo function");
+
+//    const userId = parseUserId(jwtToken);
 
    const todoId = uuid.v4();
    const createdAt = new Date().toISOString();
@@ -44,13 +50,13 @@ export async function createTodo(
 
 //  update todo
 export async function updateTodo(
-    userId: string,
     todoId: string,
-    newTodo: UpdateTodoRequest
-): Promise<UpdateTodoRequest> {
+    newTodo: UpdateTodoRequest,
+    userId: string
+): Promise<TodoUpdate> {
     logger.info("called updateTodo function ") 
 
-    return await todosAccess.updateTodoItem(userId, todoId, newTodo)
+    return await todosAccess.updateTodoItem( todoId, userId, newTodo)
 }
 
 
@@ -71,5 +77,5 @@ export async function createAttachmentPresignedUrl(
 ): Promise<string> {
     logger.info("called createAttachmentPresignedUrl function ", userId)
 
-    return await attachmentUtils.getUploadUrl(todoId)
+    return attachmentUtils.getUploadUrl(todoId)
 }

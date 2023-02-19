@@ -22,7 +22,7 @@ export class TodosAccess{
         private todosIndex = indexName
     ) {}
 
-    async getAllTodos(userId: string) {
+    async getAllTodos(userId: string): Promise<TodoItem[]> {
         logger.info("Calling getallTodos function")
 
         const queryResult = await this.docClient.query({
@@ -35,29 +35,43 @@ export class TodosAccess{
         }).promise()
 
         const items = queryResult.Items
-        return items
+        return items as TodoItem[]
     }
 
-    async createTodoItem(todo: TodoItem) {
-        logger.info("Calling createTodoItem function")
+    // async createTodoItem(todo: TodoItem) {
+    //     logger.info("Calling createTodoItem function")
 
-        const createdItem = await this.docClient.put({
+    //     const createdItem = await this.docClient.put({
+    //         TableName: this.todosTable,
+    //         Item: todo
+    //     }).promise()
+
+    //     logger.info("Item Created", createdItem)
+    //     return todo as TodoItem
+    // }
+
+    async createTodoItem(todoItem: TodoItem): Promise<TodoItem> {
+        console.log("Creating new todo");
+
+        const params = {
             TableName: this.todosTable,
-            Item: todo
-        }).promise()
+            Item: todoItem,
+        };
 
-        logger.info("Item Created", createdItem)
-        return todo as TodoItem
+        const result = await this.docClient.put(params).promise();
+        console.log(result);
+
+        return todoItem as TodoItem;
     }
 
     async updateTodoItem(
-        userId: string,
         todoId: string,
+        userId: string,
         todoUpdate: TodoUpdate
     ) {
         logger.info("Calling updateTodoItem function")
 
-        await this.docClient.update({
+        const res = await this.docClient.update({
             TableName: this.todosTable,
             Key: {
                 todoId, userId
@@ -71,10 +85,11 @@ export class TodosAccess{
             ExpressionAttributeNames: {
                 '#name': 'name'
             },
-            ReturnValues: 'UPDATED_NEW'
+            ReturnValues: 'ALL_NEW'
         }).promise()
 
-        return todoUpdate as TodoUpdate
+        const updatedTodo = res.Attributes
+        return updatedTodo as TodoUpdate
     }
 
     async deleteTodoItem(
